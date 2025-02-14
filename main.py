@@ -1,6 +1,5 @@
 import tkinter as tk
 from tkinter import messagebox
-import time
 import sqlite3
 from datetime import datetime
 from tkinter import ttk
@@ -61,24 +60,26 @@ class PomodoroTimer:
                 self.reset_button.config(text="Start")
                 self.total_time += 12 * 60
                 self.update_total_time_label()
-                messagebox.showinfo("Time's up!", "Time for a break!")
+                self.show_times_up_message()
             self.time_left -= 1
         self.root.after(1000, self.update_timer)
-    
+
     def update_total_time_label(self):
-        total_hours, total_mins = divmod(self.total_time, 3600)
-        total_mins = total_mins // 60
+        total_hours, remainder = divmod(self.total_time, 3600)
+        total_mins = remainder // 60
         self.total_label.config(text=f"Total Time: {total_hours}:{total_mins:02d}")
 
     def start_reset_timer(self):
-        self.total_time += (12 * 60 - self.time_left)
-        self.update_total_time_label()
-        
-        # Save time spent to SQLite
-        cursor = self.conn.cursor()
-        current_date = datetime.now().strftime('%Y-%m-%d')
-        cursor.execute("INSERT INTO time_spent (date, time_spent) VALUES (?, ?)", (current_date, 12 * 60 - self.time_left))
-        self.conn.commit()
+        elapsed_time = 12 * 60 - self.time_left
+        if elapsed_time > 0:
+            self.total_time += elapsed_time
+            self.update_total_time_label()
+            
+            # Save time spent to SQLite
+            cursor = self.conn.cursor()
+            current_date = datetime.now().strftime('%Y-%m-%d')
+            cursor.execute("INSERT INTO time_spent (date, time_spent) VALUES (?, ?)", (current_date, elapsed_time))
+            self.conn.commit()
         
         self.time_left = 12 * 60
         
@@ -106,12 +107,17 @@ class PomodoroTimer:
         tree.heading("Total Time", text="Total Time (hours:minutes)")
         
         for row in results:
-            total_hours, total_mins = divmod(row[1], 3600)
-            total_mins = total_mins // 60
+            total_hours, remainder = divmod(row[1], 3600)
+            total_mins = remainder // 60
             tree.insert('', 'end', values=(row[0], f"{total_hours}:{total_mins:02d}"))
         
         tree.pack(fill=tk.BOTH, expand=True)
-    
+
+    def show_times_up_message(self):
+        self.root.attributes('-topmost', True)
+        messagebox.showinfo("Time's up!", "Time for a break!")
+        self.root.attributes('-topmost', True)
+
     def center_window(self):
         self.root.update_idletasks()
         width = self.root.winfo_width()

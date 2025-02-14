@@ -1,6 +1,8 @@
 import tkinter as tk
 from tkinter import messagebox
 import time
+import sqlite3
+from datetime import datetime
 
 class PomodoroTimer:
     def __init__(self, root):
@@ -11,6 +13,10 @@ class PomodoroTimer:
         self.time_left = 12 * 60  # 12 minutes
         self.running = False
         self.total_time = 0
+
+        # Create SQLite database
+        self.conn = sqlite3.connect('pomodoro_timer.db')
+        self.create_table()
         
         self.label = tk.Label(root, text="12:00", font=("Helvetica", 24))
         self.label.pack(pady=10)
@@ -22,6 +28,17 @@ class PomodoroTimer:
         self.reset_button.pack(pady=10)
         
         self.update_timer()
+
+    def create_table(self):
+        cursor = self.conn.cursor()
+        cursor.execute("""
+            CREATE TABLE IF NOT EXISTS time_spent (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                date TEXT,
+                time_spent INTEGER
+            )
+        """)
+        self.conn.commit()
 
     def update_timer(self):
         if self.running:
@@ -41,6 +58,13 @@ class PomodoroTimer:
         self.total_time += (12 * 60 - self.time_left)
         total_mins, total_secs = divmod(self.total_time, 60)
         self.total_label.config(text=f"Total Time: {total_mins}:{total_secs:02d}")
+        
+        # Save time spent to SQLite
+        cursor = self.conn.cursor()
+        current_date = datetime.now().strftime('%Y-%m-%d')
+        cursor.execute("INSERT INTO time_spent (date, time_spent) VALUES (?, ?)", (current_date, self.total_time))
+        self.conn.commit()
+        
         self.time_left = 12 * 60
         self.running = True
 

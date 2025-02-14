@@ -9,7 +9,7 @@ class PomodoroTimer:
     def __init__(self, root):
         self.root = root
         self.root.title("Pomodoro Timer")
-        self.root.geometry("250x200")
+        self.root.geometry("250x160")
         self.root.attributes('-topmost', True)
         self.time_left = 12 * 60  # 12 minutes
         self.running = False
@@ -20,7 +20,7 @@ class PomodoroTimer:
         self.create_table()
         
         self.label = tk.Label(root, text="12:00", font=("Helvetica", 24))
-        self.label.pack(pady=10)
+        self.label.pack(pady=5)
         
         self.total_label = tk.Label(root, text="Total Time: 0:00", font=("Helvetica", 12))
         self.total_label.pack()

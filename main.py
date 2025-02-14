@@ -9,7 +9,7 @@ class PomodoroTimer:
     def __init__(self, root):
         self.root = root
         self.root.title("Pomodoro Timer")
-        self.root.geometry("250x160")
+        self.root.geometry("250x130")
         self.root.attributes('-topmost', True)
         self.time_left = 12 * 60  # 12 minutes
         self.running = False
@@ -20,7 +20,7 @@ class PomodoroTimer:
         self.create_table()
         
         self.label = tk.Label(root, text="12:00", font=("Helvetica", 24))
-        self.label.pack(pady=5)
+        self.label.pack(pady=10)
         
         self.total_label = tk.Label(root, text="Total Time: 0:00", font=("Helvetica", 12))
         self.total_label.pack()
@@ -36,6 +36,9 @@ class PomodoroTimer:
         self.view_button.grid(row=0, column=1, padx=5)
         
         self.update_timer()
+        
+        # Center the window on the screen
+        self.center_window()
 
     def create_table(self):
         cursor = self.conn.cursor()
@@ -97,6 +100,14 @@ class PomodoroTimer:
             tree.insert('', 'end', values=(row[0], f"{total_hours}:{total_mins // 60:02d}"))
         
         tree.pack(fill=tk.BOTH, expand=True)
+    
+    def center_window(self):
+        self.root.update_idletasks()
+        width = self.root.winfo_width()
+        height = self.root.winfo_height()
+        x = (self.root.winfo_screenwidth() // 2) - (width // 2)
+        y = (self.root.winfo_screenheight() // 2) - (height // 2)
+        self.root.geometry(f'{width}x{height}+{x}+{y}')
 
 if __name__ == "__main__":
     root = tk.Tk()

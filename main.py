@@ -29,7 +29,7 @@ class PomodoroTimer:
         button_frame = tk.Frame(root)
         button_frame.pack(pady=5)
         
-        self.reset_button = tk.Button(button_frame, text="Reset", command=self.reset_timer)
+        self.reset_button = tk.Button(button_frame, text="Start", command=self.start_reset_timer)
         self.reset_button.grid(row=0, column=0, padx=5)
         
         self.view_button = tk.Button(button_frame, text="View Total Time", command=self.view_total_time)
@@ -58,26 +58,36 @@ class PomodoroTimer:
             self.label.config(text=time_format)
             if self.time_left <= 0:
                 self.running = False
+                self.reset_button.config(text="Start")
                 self.total_time += 12 * 60
-                total_hours, total_mins = divmod(self.total_time, 3600)
-                self.total_label.config(text=f"Total Time: {total_hours}:{total_mins // 60:02d}")
+                self.update_total_time_label()
                 messagebox.showinfo("Time's up!", "Time for a break!")
             self.time_left -= 1
         self.root.after(1000, self.update_timer)
     
-    def reset_timer(self):
-        self.total_time += (12 * 60 - self.time_left)
+    def update_total_time_label(self):
         total_hours, total_mins = divmod(self.total_time, 3600)
-        self.total_label.config(text=f"Total Time: {total_hours}:{total_mins // 60:02d}")
+        total_mins = total_mins // 60
+        self.total_label.config(text=f"Total Time: {total_hours}:{total_mins:02d}")
+
+    def start_reset_timer(self):
+        self.total_time += (12 * 60 - self.time_left)
+        self.update_total_time_label()
         
         # Save time spent to SQLite
         cursor = self.conn.cursor()
         current_date = datetime.now().strftime('%Y-%m-%d')
-        cursor.execute("INSERT INTO time_spent (date, time_spent) VALUES (?, ?)", (current_date, self.total_time))
+        cursor.execute("INSERT INTO time_spent (date, time_spent) VALUES (?, ?)", (current_date, 12 * 60 - self.time_left))
         self.conn.commit()
         
         self.time_left = 12 * 60
-        self.running = True
+        
+        if not self.running:
+            self.running = True
+            self.reset_button.config(text="Reset")
+        else:
+            self.running = False
+            self.reset_button.config(text="Start")
 
     def view_total_time(self):
         cursor = self.conn.cursor()
@@ -93,11 +103,12 @@ class PomodoroTimer:
         
         tree = ttk.Treeview(view_window, columns=("Date", "Total Time"), show='headings')
         tree.heading("Date", text="Date")
-        tree.heading("Total Time", text="Total Time (hours)")
+        tree.heading("Total Time", text="Total Time (hours:minutes)")
         
         for row in results:
             total_hours, total_mins = divmod(row[1], 3600)
-            tree.insert('', 'end', values=(row[0], f"{total_hours}:{total_mins // 60:02d}"))
+            total_mins = total_mins // 60
+            tree.insert('', 'end', values=(row[0], f"{total_hours}:{total_mins:02d}"))
         
         tree.pack(fill=tk.BOTH, expand=True)
     

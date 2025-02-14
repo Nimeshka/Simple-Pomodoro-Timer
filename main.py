@@ -52,16 +52,16 @@ class PomodoroTimer:
             if self.time_left <= 0:
                 self.running = False
                 self.total_time += 12 * 60
-                total_mins, total_secs = divmod(self.total_time, 60)
-                self.total_label.config(text=f"Total Time: {total_mins}:{total_secs:02d}")
+                total_hours, total_mins = divmod(self.total_time, 3600)
+                self.total_label.config(text=f"Total Time: {total_hours}:{total_mins // 60:02d}")
                 messagebox.showinfo("Time's up!", "Time for a break!")
             self.time_left -= 1
         self.root.after(1000, self.update_timer)
     
     def reset_timer(self):
         self.total_time += (12 * 60 - self.time_left)
-        total_mins, total_secs = divmod(self.total_time, 60)
-        self.total_label.config(text=f"Total Time: {total_mins}:{total_secs:02d}")
+        total_hours, total_mins = divmod(self.total_time, 3600)
+        self.total_label.config(text=f"Total Time: {total_hours}:{total_mins // 60:02d}")
         
         # Save time spent to SQLite
         cursor = self.conn.cursor()
@@ -81,13 +81,16 @@ class PomodoroTimer:
         view_window = tk.Toplevel(self.root)
         view_window.title("Total Time Spent")
         view_window.geometry("300x200")
+        view_window.attributes('-topmost', True)
+        view_window.geometry(f"+{self.root.winfo_x()}+{self.root.winfo_y()}")
         
         tree = ttk.Treeview(view_window, columns=("Date", "Total Time"), show='headings')
         tree.heading("Date", text="Date")
-        tree.heading("Total Time", text="Total Time (seconds)")
+        tree.heading("Total Time", text="Total Time (hours)")
         
         for row in results:
-            tree.insert('', 'end', values=row)
+            total_hours, total_mins = divmod(row[1], 3600)
+            tree.insert('', 'end', values=(row[0], f"{total_hours}:{total_mins // 60:02d}"))
         
         tree.pack(fill=tk.BOTH, expand=True)
 

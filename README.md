@@ -1,9 +1,8 @@
-![image](https://github.com/user-attachments/assets/ecf817d6-5d08-4068-8a87-63819a39a0b8)
-
-
 # Simple Pomodoro Timer
 
 A straightforward, no-nonsense Pomodoro timer built with Python 3, designed to cut through the clutter of overly complicated tools. Perfect for staying on task without the unnecessary bells and whistles.
+
+![image](https://github.com/user-attachments/assets/ecf817d6-5d08-4068-8a87-63819a39a0b8)
 
 ## Features
 - Easy to use

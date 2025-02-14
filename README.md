@@ -1,3 +1,6 @@
+![image](https://github.com/user-attachments/assets/ecf817d6-5d08-4068-8a87-63819a39a0b8)
+
+
 # Simple Pomodoro Timer
 
 A straightforward, no-nonsense Pomodoro timer built with Python 3, designed to cut through the clutter of overly complicated tools. Perfect for staying on task without the unnecessary bells and whistles.
@@ -12,11 +15,11 @@ A straightforward, no-nonsense Pomodoro timer built with Python 3, designed to c
 ## Installation
 1. Clone the repository:
     ```
-    git clone https://github.com/yourusername/repository-name.git
+    git clone https://github.com/Nimeshka/Simple-Pomodoro-Timer.git
     ```
 2. Navigate to the project directory:
     ```
-    cd repository-name
+    cd Simple-Pomodoro-Timer
     ```
 3. Create and activate a virtual environment:
     ```

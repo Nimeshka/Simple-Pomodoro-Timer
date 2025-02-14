@@ -3,12 +3,13 @@ from tkinter import messagebox
 import time
 import sqlite3
 from datetime import datetime
+from tkinter import ttk
 
 class PomodoroTimer:
     def __init__(self, root):
         self.root = root
         self.root.title("Pomodoro Timer")
-        self.root.geometry("200x150")
+        self.root.geometry("200x200")
         self.root.attributes('-topmost', True)
         self.time_left = 12 * 60  # 12 minutes
         self.running = False
@@ -25,7 +26,10 @@ class PomodoroTimer:
         self.total_label.pack()
         
         self.reset_button = tk.Button(root, text="Reset", command=self.reset_timer)
-        self.reset_button.pack(pady=10)
+        self.reset_button.pack(pady=5)
+        
+        self.view_button = tk.Button(root, text="View Total Time", command=self.view_total_time)
+        self.view_button.pack(pady=5)
         
         self.update_timer()
 
@@ -67,6 +71,25 @@ class PomodoroTimer:
         
         self.time_left = 12 * 60
         self.running = True
+
+    def view_total_time(self):
+        cursor = self.conn.cursor()
+        cursor.execute("SELECT date, SUM(time_spent) FROM time_spent GROUP BY date")
+        results = cursor.fetchall()
+        
+        # Create a new window to display the total time
+        view_window = tk.Toplevel(self.root)
+        view_window.title("Total Time Spent")
+        view_window.geometry("300x200")
+        
+        tree = ttk.Treeview(view_window, columns=("Date", "Total Time"), show='headings')
+        tree.heading("Date", text="Date")
+        tree.heading("Total Time", text="Total Time (seconds)")
+        
+        for row in results:
+            tree.insert('', 'end', values=row)
+        
+        tree.pack(fill=tk.BOTH, expand=True)
 
 if __name__ == "__main__":
     root = tk.Tk()
